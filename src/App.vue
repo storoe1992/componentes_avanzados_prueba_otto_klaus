@@ -1,32 +1,37 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
     <router-view/>
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
 
-#nav {
-  padding: 30px;
+import firebase from 'firebase'
+import Juguete from './classes/Juguete'
+import {mapMutations} from 'vuex'
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+export default {
+  name : 'App',
+  methods: {
+    ...mapMutations(['addJuguete'])
+  },
+  created(){
+    try{
+    let db = firebase.firestore();
+    db.collection("juguetes").get().then((query) => {
+      query.forEach(juguete => {
+          const jugueteMapped = new Juguete(juguete.id,juguete.data().name,juguete.data().stock,juguete.data().price);
+          this.addJuguete(jugueteMapped);
+      });
+    });
+    }catch(error){
+      alert("Error cargando base de datos firebase")
     }
   }
 }
+</script>
+
+
+<style lang="scss">
+
 </style>
